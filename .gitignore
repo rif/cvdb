@@ -1,0 +1,11 @@
+*.komodo*
+*.pyc
+*.bak
+*~
+cache
+databases
+errors
+private
+sessions
+uploads
+progress.log

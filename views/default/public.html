@@ -1,0 +1,64 @@
+{{extend 'layout.html'}}
+
+{{if not auth.user:}}
+Welcome to in-telligence.ro CV service. Please login or register in order to use enter/edit your CV.
+{{else:}}
+{{if profile:}}
+<h2>{{=T('Profile')}}</h2>
+<div>
+    <span class="title">{{=profile.first_name}} {{=profile.last_name}}</span><br>
+    {{=profile.title}}, {{=profile.country}}<br>
+    {{=MARKMIN(profile.about)}}
+    {{=MARKMIN(profile.summary)}}
+</div>
+{{pass}}        
+{{if contact:}}
+<h2>{{=T('Contact')}}</h2>
+<address>
+    {{if contact.email:}}<span class="title">{{=contact.email}}</span><br>{{pass}}
+    {{if contact.address:}}{{=contact.address}}<br>{{pass}}
+    {{if contact.home_phone:}}{{=contact.home_phone}}<br>{{pass}}
+    {{if contact.office_phone:}}{{=contact.office_phone}}<br>{{pass}}
+    {{if contact.cell_phone:}}{{=contact.cell_phone}}<br>{{pass}}
+    {{if contact.skype:}}Skype: {{=contact.skype}}<br>{{pass}}
+    {{if contact.yahoo:}}Yahoo: {{=contact.yahoo}}<br>{{pass}}
+    {{if contact.gchat:}}GChat: {{=contact.gchat}}<br>{{pass}}
+    {{if contact.aim:}}Aim: {{=contact.aim}}<br>{{pass}}
+    {{if contact.msn:}}MSN: {{=contact.msn}}<br>{{pass}}            
+</address>
+{{pass}}
+
+{{if projects:}}
+<h2>{{=T('Projects')}}</h2>
+{{for project in projects:}}    
+<div style="margin-top: 2em">
+    <span class="title">{{=project.title}}</span><br>
+    {{=project.position}}<br>
+    {{=project.type}}<br>
+    {{if project.link:}}{{=project.link}}<br>{{pass}}
+    {{=MARKMIN(project.description)}}
+    {{=project.start}} - {{if project.end:}}{{=project.end}}{{else:}}{{=T('present')}}{{pass}}<br>    
+</div>  
+{{pass}}    
+
+{{pass}}
+{{if skills:}}
+<h2>{{=T('Skills')}}</h2>
+{{ for skill in skills:}}   
+<div style="margin-top: 2em">
+    <span class="title"> {{=skill.name}}</span><br>
+    Experience: {{=skill.experience}} years<br>
+    {{=MARKMIN(skill.description)}}
+    Rating: {{=skill.rating}}<br>    
+</div>
+{{pass}}
+{{pass}}
+{{pass}}
+
+{{block script}}
+<script>
+    $(function(){
+       $('.navbar, .mastheader').remove(); 
+    });
+</script>
+{{end}}

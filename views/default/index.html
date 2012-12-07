@@ -1,0 +1,132 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,auth.user != None}}
+{{extend 'layout.html'}}
+
+{{if not auth.user:}}
+Welcome to in-telligence.ro CV service. Please login or register in order to use enter/edit your CV.
+{{else:}}
+<div class="row">
+    <div class="span5">
+        {{if profile:}}
+        <h2>{{=T('Profile')}}</h2>
+        <div>
+            <span class="title">{{=profile.first_name}} {{=profile.last_name}}</span> <a class="modal-link btn btn-mini" href="{{=URL('default', 'edit_profile', args=profile.id, user_signature=True)}}"><i class="icon-edit"></i> Edit</a><br>
+            {{=profile.title}}, {{=profile.country}}<br>
+            {{=MARKMIN(profile.about)}}
+            {{=MARKMIN(profile.summary)}}
+        </div>
+        {{pass}}        
+    </div>
+    <div class="span4">
+        {{if contact:}}
+        <h2>{{=T('Contact')}}</h2>
+        <address>
+            {{if contact.email:}}<span class="title">{{=contact.email}}</span> <a class="modal-link btn btn-mini" href="{{=URL('default', 'edit_contact', args=contact.id, user_signature=True)}}"><i class="icon-edit"></i> Edit</a><br>{{pass}}
+            {{if contact.address:}}{{=contact.address}}<br>{{pass}}
+            {{if contact.home_phone:}}{{=contact.home_phone}}<br>{{pass}}
+            {{if contact.office_phone:}}{{=contact.office_phone}}<br>{{pass}}
+            {{if contact.cell_phone:}}{{=contact.cell_phone}}<br>{{pass}}
+            {{if contact.skype:}}Skype: {{=contact.skype}}<br>{{pass}}
+            {{if contact.yahoo:}}Yahoo: {{=contact.yahoo}}<br>{{pass}}
+            {{if contact.gchat:}}GChat: {{=contact.gchat}}<br>{{pass}}
+            {{if contact.aim:}}Aim: {{=contact.aim}}<br>{{pass}}
+            {{if contact.msn:}}MSN: {{=contact.msn}}<br>{{pass}}            
+        </address>
+        {{pass}}
+    </div>
+</div>
+<div class="row">
+{{if projects:}}
+<div class="span5">
+    <h2>{{=T('Projects')}}</h2>
+    {{for project in projects:}}    
+    <div style="margin-top: 2em">
+        <span class="title">{{=project.title}}</span> <a class="modal-link btn btn-mini" href="{{=URL('default', 'edit_entry', args=project.id, user_signature=True)}}"><i class="icon-edit"></i> Edit</a><br>
+        {{=project.position}}<br>
+        {{=project.type}}<br>
+        {{if project.link:}}{{=project.link}}<br>{{pass}}
+        {{=MARKMIN(project.description)}}
+        {{=project.start}} - {{if project.end:}}{{=project.end}}{{else:}}{{=T('present')}}{{pass}}<br>    
+    </div>  
+    {{pass}}    
+</div>
+{{pass}}
+{{if skills:}}
+<div class="span4">
+    <h2>{{=T('Skills')}}</h2>
+    {{ for skill in skills:}}   
+    <div style="margin-top: 2em">
+        <span class="title"> {{=skill.name}}</span> <a class="modal-link btn btn-mini" href="{{=URL('default', 'edit_skill', args=skill.id, user_signature=True)}}"><i class="icon-edit"></i> Edit</a><br>
+        Experience: {{=skill.experience}} years<br>
+        {{=MARKMIN(skill.description)}}
+        Rating: {{=skill.rating}}<br>    
+    </div>
+    {{pass}}
+</div>
+{{pass}}
+</div>
+{{block right_sidebar}}
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+      <li class="nav-header">Resume Elements</li>
+        {{if not profile:}}
+        <li><a class="modal-link" href="{{=URL('default', 'edit_profile', user_signature=True)}}">Add Profile</a></li>
+        {{pass}}
+        {{if not contact:}}
+        <li><a class="modal-link" href="{{=URL('default', 'edit_contact', user_signature=True)}}">Add Contact</a></li>
+        {{pass}}
+        {{if len(projects or []) < MAX_ENTRIES:}}  
+        <li><a class="modal-link" href="{{=URL('default', 'edit_entry', user_signature=True)}}">Add Project <span class="muted">{{=len(projects or [])}}/{{=MAX_ENTRIES}}</span></a></li>
+        {{pass}}
+        {{if len(skills or []) < MAX_SKILLS:}}  
+        <li><a class="modal-link" href="{{=URL('default', 'edit_skill', user_signature=True)}}">Add Skill <span class="muted">{{=len(skills or [])}}/{{=MAX_SKILLS}}</span></a></li>
+        {{pass}}
+        <li><a href="{{=URL('default', 'index', args='public')}}">Public view</a></li>
+    </ul>
+</div>
+{{end}}
+{{pass}}
+
+<div id="inModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="inModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>    
+  </div>
+  <div class="modal-body"></div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">{{=T('Close')}}</button>
+    <button id="submit-button" class="btn btn-primary">{{=T('Save Changes')}}</button>
+  </div>
+</div>
+
+
+{{block script}}
+<script>
+$(function(){
+    var action = '#';
+     var modalBody = $('.modal-body');
+    $('.modal-link').click(function(){
+        action = $(this).attr('href');        
+        modalBody.load(action, function(){
+            $('.modal-header').find('#inModalLabel').remove();
+            $('.modal-header').append($('#inModalLabel'));
+            $('#inModal').modal();            
+        })
+       return false; 
+    });
+    $('#inModal').on('show', function(){
+        $('#submit_record__row').remove();
+        $('#submit-button').click(function(){        
+                var form = modalBody.find('form');
+            $.post(action, form.serialize(), function(response){
+                if(response.indexOf("error") !== -1){                    
+                    modalBody.html(response);
+                    $('#submit_record__row').remove();
+                } else {
+                    window.location.href = "{{=URL('default', 'index')}}";   
+                }            
+            });
+            return false;
+        }); 
+    });
+});
+</script>
+{{end}}
